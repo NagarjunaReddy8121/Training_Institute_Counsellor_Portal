@@ -14,6 +14,6 @@ import lombok.NoArgsConstructor;
 public class ViewEnquiryFilterRequest {
 
     private ClassMode classMode;
-    private String course;
+    private String courseName;
     private EnquiryStatus status;
 }

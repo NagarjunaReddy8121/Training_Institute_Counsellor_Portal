@@ -19,7 +19,7 @@ public class Enquiry {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
-    private String phoneNo;
+    private Long phoneNo;
     private String courseName;
     @Enumerated(EnumType.STRING)
     private ClassMode classMode;

@@ -18,11 +18,10 @@ public class Counsellor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @NotNull
     private String name;
     @Column(unique = true)
     private String email;
     private String password;
-    private String phoneNo;
+    private Long phoneNo;
 
 }

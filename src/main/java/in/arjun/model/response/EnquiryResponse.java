@@ -4,14 +4,15 @@ import in.arjun.enums.ClassMode;
 import in.arjun.enums.EnquiryStatus;
 import in.arjun.model.entity.Enquiry;
 import lombok.Builder;
+import lombok.Data;
 import lombok.Getter;
 
 @Builder
-@Getter
+@Data
 public class EnquiryResponse {
     private Integer id;
     private String name;
-    private String phoneNo;
+    private Long phoneNo;
     private String courseName;
     private ClassMode classMode;
     private EnquiryStatus status;

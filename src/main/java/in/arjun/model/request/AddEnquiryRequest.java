@@ -13,8 +13,9 @@ import lombok.NoArgsConstructor;
 @Builder
 public class AddEnquiryRequest {
 
+    private Integer id;
     private String name;
-    private String phoneNo;
+    private Long phoneNo;
     private String courseName;
     private ClassMode classMode;
     private EnquiryStatus status;

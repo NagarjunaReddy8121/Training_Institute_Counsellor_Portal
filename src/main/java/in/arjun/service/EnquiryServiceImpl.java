@@ -11,6 +11,7 @@ import in.arjun.model.request.AddEnquiryRequest;
 import in.arjun.model.entity.Counsellor;
 import in.arjun.model.entity.Enquiry;
 import in.arjun.exception.CounsellorNotFoundException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class EnquiryServiceImpl implements EnquiryService{
+public class EnquiryServiceImpl implements EnquiryService {
 
     @Autowired
     private EnquiryRepository enquiryRepository;
@@ -29,11 +30,12 @@ public class EnquiryServiceImpl implements EnquiryService{
     private CounsellorRepository counsellorRepository;
 
     @Override
-    public String createEnquiry(AddEnquiryRequest addEnquiryRequest) {
-        Optional<Counsellor> optionalCounsellor = counsellorRepository.findByEmail(addEnquiryRequest.getCounsellorEmail());
+    public boolean createEnquiry(AddEnquiryRequest addEnquiryRequest, String email) {
+        Optional<Counsellor> optionalCounsellor = counsellorRepository.findByEmail(email);
         if (optionalCounsellor.isEmpty()) {
-            throw new CounsellorNotFoundException("counsellor not found with this email" + addEnquiryRequest.getCounsellorEmail());
+            throw new CounsellorNotFoundException("counsellor not found with this email" + email);
         }
+
         Enquiry enquiry = Enquiry.builder().
                 name(addEnquiryRequest.getName())
                 .phoneNo(addEnquiryRequest.getPhoneNo())
@@ -43,8 +45,15 @@ public class EnquiryServiceImpl implements EnquiryService{
                 .counsellor(optionalCounsellor.get())
                 .build();
 
-        enquiryRepository.save(enquiry);
-        return "success";
+        if (addEnquiryRequest.getId() !=null){
+            enquiry.setId(addEnquiryRequest.getId());
+        }
+
+        Enquiry saved = enquiryRepository.save(enquiry);
+        if (saved !=null) {
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -66,7 +75,7 @@ public class EnquiryServiceImpl implements EnquiryService{
     @Override
     public DashboardResponse getCounsellorEnquiryData(String counsellorEmail) {
         Optional<Counsellor> optionalCounsellor = counsellorRepository.findByEmail(counsellorEmail);
-        if (optionalCounsellor.isEmpty()){
+        if (optionalCounsellor.isEmpty()) {
             throw new CounsellorNotFoundException("counsellor not found with this email" + counsellorEmail);
         }
 
@@ -90,28 +99,40 @@ public class EnquiryServiceImpl implements EnquiryService{
     }
 
     @Override
-    public List<EnquiryResponse> findFilterRequest(ViewEnquiryFilterRequest filterRequest) {
-        String courseName = filterRequest.getCourse();
+    public List<EnquiryResponse> findFilterRequest(ViewEnquiryFilterRequest filterRequest, String email) {
+        Optional<Counsellor> optionalCounsellor = counsellorRepository.findByEmail(email);
+        if (optionalCounsellor.isEmpty()) {
+            throw new CounsellorNotFoundException("counsellor not found with this email" + email);
+        }
+
+        Counsellor counsellor = optionalCounsellor.get();
+        String courseName = filterRequest.getCourseName();
         EnquiryStatus status = filterRequest.getStatus();
         ClassMode classMode = filterRequest.getClassMode();
         List<Enquiry> filteredEnquiries = Collections.EMPTY_LIST;
 
-        if (courseName != null && status != null && classMode != null) {
-            filteredEnquiries = enquiryRepository.findByClassModeAndCourseNameAndStatus(classMode,courseName,status);
-        } else if (courseName !=null && status !=null) {
-            filteredEnquiries = enquiryRepository.findByCourseNameAndStatus(courseName, status);
-        } else if (courseName !=null && classMode !=null) {
-           filteredEnquiries = enquiryRepository.findByClassModeAndCourseName(classMode,courseName);
-        } else if (classMode !=null && status !=null) {
-            filteredEnquiries = enquiryRepository.findByClassModeAndStatus(classMode,status);
-        } else if (courseName !=null) {
-            filteredEnquiries = enquiryRepository.findByCourseName(courseName);
-        } else if (classMode !=null) {
-            filteredEnquiries = enquiryRepository.findByClassMode(classMode);
-        }else {
-            filteredEnquiries = enquiryRepository.findByStatus(status);
+        if (StringUtils.isNotEmpty(courseName) && status != null && classMode != null) {
+            filteredEnquiries = enquiryRepository.findByClassModeAndCourseNameAndStatusAndCounsellor(classMode, courseName, status, counsellor);
+        } else if (StringUtils.isNotEmpty(courseName) && status != null) {
+            filteredEnquiries = enquiryRepository.findByCourseNameAndStatusAndCounsellor(courseName, status, counsellor);
+        } else if (StringUtils.isNotEmpty(courseName) && classMode != null) {
+            filteredEnquiries = enquiryRepository.findByClassModeAndCourseNameAndCounsellor(classMode, courseName, counsellor);
+        } else if (classMode != null && status != null) {
+            filteredEnquiries = enquiryRepository.findByClassModeAndStatusAndCounsellor(classMode, status, counsellor);
+        } else if (StringUtils.isNotEmpty(courseName)) {
+            filteredEnquiries = enquiryRepository.findByCourseNameAndCounsellor(courseName, counsellor);
+        } else if (classMode != null) {
+            filteredEnquiries = enquiryRepository.findByClassModeAndCounsellor(classMode, counsellor);
+        } else {
+            filteredEnquiries = enquiryRepository.findByStatusAndCounsellor(status, counsellor);
         }
         return filteredEnquiries.stream().map(EnquiryResponse::fromEnquiry).toList();
+    }
+
+    @Override
+    public Enquiry getEnquiryById(Integer id) {
+        Optional<Enquiry> enquiryById = enquiryRepository.findById(id);
+        return enquiryById.orElse(null);
     }
 
 
