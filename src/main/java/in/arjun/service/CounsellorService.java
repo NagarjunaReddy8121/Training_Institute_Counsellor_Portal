@@ -7,11 +7,11 @@ import java.util.Optional;
 
 public interface CounsellorService {
 
-    Optional<Counsellor> createCounsellor(RegisterCounsellorRequest registerCounsellorRequest);
+    Counsellor createCounsellor(RegisterCounsellorRequest registerCounsellorRequest);
 
-    Optional<Counsellor> loginCounsellor(String email,String password);
+    Counsellor loginCounsellor(String email,String password);
 
-   Optional<Counsellor> getByEmail(String email);
+    Counsellor getByEmail(String email);
 
 
 }

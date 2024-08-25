@@ -1,9 +1,9 @@
 package in.arjun.controller;
 
 import in.arjun.model.entity.Counsellor;
+import in.arjun.model.request.LoginCounsellorRequest;
 import in.arjun.model.request.RegisterCounsellorRequest;
 import in.arjun.service.CounsellorService;
-import in.arjun.service.EnquiryService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,39 +13,40 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import java.util.Optional;
-
 @Controller
 public class CounsellorController {
 
     @Autowired
     private CounsellorService counsellorService;
 
-    @Autowired
-    private EnquiryService enquiryService;
-
     @GetMapping("/")
-     public String index(Model model){
+     public String index(Model model, HttpServletRequest req){
+        HttpSession session = req.getSession(false);
+        if (session != null) {
+            String emailBySession=(String) session.getAttribute("email");
+            if (emailBySession != null) {
+                return "redirect:/dashboard";
+            }
+        }
         RegisterCounsellorRequest request=new RegisterCounsellorRequest();
         model.addAttribute("counsellor",request);
          return "index";
      }
 
-     @PostMapping("/login")
-     public String login(Counsellor counsellor, HttpServletRequest req, Model model) {
-         Optional<Counsellor> optionalCounsellor = counsellorService.loginCounsellor(counsellor.getEmail(), counsellor.getPassword());
-         if (optionalCounsellor.isEmpty()){
-             model.addAttribute("emsg","Invalid credentials");
-             return "index";
-         } else {
+    @PostMapping("/login")
+    public String login(@ModelAttribute("counsellor") LoginCounsellorRequest request, HttpServletRequest req, Model model) {
+        Counsellor counsellor = counsellorService.loginCounsellor(request.getEmail(), request.getPassword());
+        if (counsellor == null) {
+            model.addAttribute("emsg", "Invalid credentials");
+            return "index";
+        }
 
-             HttpSession session = req.getSession(true);
-             session.setAttribute("email",optionalCounsellor.get().getEmail());
+        HttpSession session = req.getSession(true);
+        session.setAttribute("email", counsellor.getEmail());
 
-             return "redirect:/dashboard";
-         }
+        return "redirect:/dashboard";
 
-     }
+    }
 
      @GetMapping("/register")
      public String registerPage(Model model){
@@ -56,18 +57,13 @@ public class CounsellorController {
 
      @PostMapping("/register")
      public String handleRegistrationPage(@ModelAttribute("counsellor") RegisterCounsellorRequest request, Model model){
-
-         Optional<Counsellor> byEmail = counsellorService.getByEmail(request.getEmail());
-         if(byEmail.isPresent()){
+         Counsellor counsellor = counsellorService.getByEmail(request.getEmail());
+         if(counsellor != null){
              model.addAttribute("emsg","Duplicate email...");
              return "register";
          }
-         Optional<Counsellor> optionalCounsellor = counsellorService.createCounsellor(request);
-         if(optionalCounsellor.isPresent()){
+             counsellorService.createCounsellor(request);
              model.addAttribute("smsg","Registration successfull....");
-         } else {
-             model.addAttribute("emsg","Registration failed...");
-         }
          return "register";
      }
 
