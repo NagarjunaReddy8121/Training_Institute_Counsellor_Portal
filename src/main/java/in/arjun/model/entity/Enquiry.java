@@ -7,12 +7,18 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.util.Date;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Enquiry {
 
     @Id
@@ -25,6 +31,13 @@ public class Enquiry {
     private ClassMode classMode;
     @Enumerated(EnumType.STRING)
     private EnquiryStatus status;
+
+    @CreatedDate
+    @Column(updatable = false)
+    private Date createdDate;
+
+    @LastModifiedDate
+    private Date updatedDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cid")

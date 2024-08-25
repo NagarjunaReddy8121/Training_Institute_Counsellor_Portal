@@ -19,7 +19,7 @@ public class CounsellorServiceImpl implements CounsellorService {
 
 
     @Override
-    public Optional<Counsellor> createCounsellor(RegisterCounsellorRequest registerCounsellorRequest) {
+    public Counsellor createCounsellor(RegisterCounsellorRequest registerCounsellorRequest) {
         Counsellor counsellor = Counsellor.builder()
                 .name(registerCounsellorRequest.getName())
                 .email(registerCounsellorRequest.getEmail())
@@ -34,17 +34,18 @@ public class CounsellorServiceImpl implements CounsellorService {
         String to=counsellor.getEmail();
         emailService.sendEmail(subject,body,to);
 
-        return Optional.of(counsellor);
+        return counsellor;
     }
 
     @Override
-    public Optional<Counsellor> loginCounsellor(String email, String password) {
-        return counsellorRepository.findByEmailAndPassword(email,password);
+    public  Counsellor loginCounsellor(String email, String password) {
+        Optional<Counsellor> optionalCounsellor = counsellorRepository.findByEmailAndPassword(email, password);
+        return optionalCounsellor.orElse(null);
     }
 
     @Override
-    public Optional<Counsellor> getByEmail(String email) {
-        return counsellorRepository.findByEmail(email);
+    public Counsellor getByEmail(String email) {
+        return counsellorRepository.findByEmail(email).orElse(null);
     }
 
 }

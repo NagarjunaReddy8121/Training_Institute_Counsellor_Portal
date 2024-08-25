@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
-import java.util.Optional;
 
 @Controller
 public class EnquiryController {
@@ -39,11 +38,11 @@ public class EnquiryController {
          boolean isSaved = enquiryService.createEnquiry(addEnquiryRequest,emailBySession);
          if (isSaved){
              model.addAttribute("smsg","Enquiry added..");
+             return "redirect:/view-enquiries";
          } else {
              model.addAttribute("emsg","failed to add Enquiry..");
+             return "enquiry";
          }
-
-         return "enquiry";
      }
 
      @GetMapping("/dashboard")
@@ -74,11 +73,8 @@ public class EnquiryController {
      public String getFilterEnquiries(@ModelAttribute("enquiryFilterRequest") ViewEnquiryFilterRequest enquiryFilterRequest,HttpServletRequest req,Model model){
          HttpSession session = req.getSession(false);
          String emailBySession=(String) session.getAttribute("email");
-
          List<EnquiryResponse> enqList = enquiryService.findFilterRequest(enquiryFilterRequest, emailBySession);
-
          model.addAttribute("enquiries",enqList);
-
          return "viewEnqsPage";
      }
 
