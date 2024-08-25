@@ -14,9 +14,12 @@ public class CounsellorServiceImpl implements CounsellorService {
     @Autowired
     private CounsellorRepository counsellorRepository;
 
+    @Autowired
+    private EmailService emailService;
+
 
     @Override
-    public String createCounsellor(RegisterCounsellorRequest registerCounsellorRequest) {
+    public Optional<Counsellor> createCounsellor(RegisterCounsellorRequest registerCounsellorRequest) {
         Counsellor counsellor = Counsellor.builder()
                 .name(registerCounsellorRequest.getName())
                 .email(registerCounsellorRequest.getEmail())
@@ -24,21 +27,24 @@ public class CounsellorServiceImpl implements CounsellorService {
                 .phoneNo(registerCounsellorRequest.getPhoneNo())
                 .build();
         counsellorRepository.save(counsellor);
-        return "success";
+
+        //Sending email to the registered counsellor
+        String subject="Counsellor Registration";
+        String body="your registration successfully completed, Welcome!!! to my World";
+        String to=counsellor.getEmail();
+        emailService.sendEmail(subject,body,to);
+
+        return Optional.of(counsellor);
     }
 
     @Override
-    public String loginCounsellor(String email,String password) {
-        Optional<Counsellor> counsellor = counsellorRepository.findByEmail(email);
-        if(counsellor.isEmpty()) {
-            return "this mail id is doesn't exists please register";
-        }
-        String savedPassword = counsellor.get().getPassword();
-        if (savedPassword.equals(password)) {
-            return "login successfully";
-        } else {
-            return "Incorrect password";
-        }
+    public Optional<Counsellor> loginCounsellor(String email, String password) {
+        return counsellorRepository.findByEmailAndPassword(email,password);
+    }
+
+    @Override
+    public Optional<Counsellor> getByEmail(String email) {
+        return counsellorRepository.findByEmail(email);
     }
 
 }

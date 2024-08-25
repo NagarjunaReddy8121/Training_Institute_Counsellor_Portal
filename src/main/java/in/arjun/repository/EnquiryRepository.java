@@ -13,22 +13,22 @@ import java.util.List;
 
 public interface EnquiryRepository extends JpaRepository<Enquiry,Integer> {
 
-    @Query(value = "SELECT * FROM ENQUIRY WHERE CID=:CID",nativeQuery = true)
-    List<Enquiry> findAllEnquiriesByCounsellorId(@Param("CID") Integer cid);
+    @Query(value = "SELECT * FROM enquiry WHERE cid=:cid",nativeQuery = true)
+    List<Enquiry> findAllEnquiriesByCounsellorId(Integer cid);
 
     List<Enquiry> findByCounsellor(Counsellor counsellor);
 
-    List<Enquiry> findByClassModeAndCourseNameAndStatus(ClassMode classMode, String courseName, EnquiryStatus status);
+    List<Enquiry> findByClassModeAndCourseNameAndStatusAndCounsellor(ClassMode classMode, String courseName, EnquiryStatus status,Counsellor counsellor);
 
-    List<Enquiry> findByClassModeAndCourseName(ClassMode classMode, String courseName);
+    List<Enquiry> findByClassModeAndCourseNameAndCounsellor(ClassMode classMode, String courseName,Counsellor counsellor);
 
-    List<Enquiry> findByClassModeAndStatus(ClassMode classMode, EnquiryStatus status);
+    List<Enquiry> findByClassModeAndStatusAndCounsellor(ClassMode classMode, EnquiryStatus status,Counsellor counsellor);
 
-    List<Enquiry> findByCourseNameAndStatus(String courseName,EnquiryStatus status);
+    List<Enquiry> findByCourseNameAndStatusAndCounsellor(String courseName,EnquiryStatus status,Counsellor counsellor);
 
-    List<Enquiry> findByCourseName(String courseName);
+    List<Enquiry> findByCourseNameAndCounsellor(String courseName,Counsellor counsellor);
 
-    List<Enquiry> findByClassMode(ClassMode classMode);
+    List<Enquiry> findByClassModeAndCounsellor(ClassMode classMode,Counsellor counsellor);
 
-    List<Enquiry> findByStatus(EnquiryStatus status);
+    List<Enquiry> findByStatusAndCounsellor(EnquiryStatus status,Counsellor counsellor);
 }

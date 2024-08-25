@@ -14,6 +14,6 @@ public class RegisterCounsellorRequest {
     private String name;
     private String email;
     private String password;
-    private String phoneNo;
+    private Long phoneNo;
 
 }

@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface CounsellorRepository extends JpaRepository<Counsellor,Integer> {
 
-
         Optional<Counsellor> findByEmail(String email);
+        Optional<Counsellor> findByEmailAndPassword(String email,String password);
 }
